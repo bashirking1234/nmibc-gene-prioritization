@@ -3,6 +3,7 @@
 **nmibc-geneprio** is a modular and reproducible Nextflow pipeline to identify and prioritize candidate genes associated with prognosis in non-muscle invasive bladder cancer (NMIBC).  
 It integrates eQTL-lookup, colocalization, and TWAS and gene ranking.
 
+
 > ⚠️ This pipeline is built using the [nf-core pipeline template](https://nf-co.re) but is **not an official nf-core pipeline**.
 
 ---
