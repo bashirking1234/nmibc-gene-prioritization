@@ -19,7 +19,7 @@ It integrates eQTL-lookup, colocalization, and TWAS and gene ranking.
 1. **eQTL lookup** – Match SNPs to expression QTLs
 2. **Colocalization** – Test for shared causal signals
 3. **TWAS** – Predict gene-trait associations
-4. **Prioritization** – Rank genes based on multi-omic evidence
+4. **Prioritization** – Rank genes based on frquency in modules
 
 ---
 
