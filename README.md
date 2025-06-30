@@ -69,7 +69,7 @@ Een Nextflow-gestuurde workflow voor de integratie van GWAS-, eQTL- en TWAS-anal
 1. **Clone de repository**
 
    ```bash
-   git clone https://github.com/bashirking1234/nmibc-geneprio.git
+   git clone https://github.com/<gebruikersnaam>/nmibc-geneprio.git
    cd nmibc-geneprio
    ```
 2. **Zorg dat Nextflow en Singularity beschikbaar zijn**
@@ -151,8 +151,8 @@ Zie [Configuration](#configuratie).
 
 ## Uitvoering
 
+```bash
 nextflow run main.nf -profile singularity
-
 ```
 
 ---
@@ -172,10 +172,6 @@ Alle workflows schrijven naar `results/`:
 
 * Interne logs in `work/`
 * Console-output in `logs/` (Slurm stdout)
-
----
-
----
 
 ## Licentie
 
