@@ -83,12 +83,12 @@ Alle inputpaden, parameters en container-instellingen staan in `nextflow.config`
 
 ```groovy
 params {
-  gwas_file        = '<pad>/MA_STDERR_gwas_prognose.tbl'
-  eqtl_lookup_file = '<pad>/GTEx_Analysis_v10_eQTL/Bladder.v10.eGenes.txt.gz'
-  eqtl_coloc_file  = '<pad>/filtered_merged_data_eqtl_gtex_results'
-  weights_dir      = '<pad>/TCGA-BLCA.TUMOR'
-  ld_dir           = '<pad>/fusion_LD'
-  pos_file         = '<pad>/TCGA-BLCA.TUMOR.pos'
+  gwas_file        = '<pad> 
+  eqtl_lookup_file = '<pad> 
+  eqtl_coloc_file  = '<pad> 
+  weights_dir      = '<pad> 
+  ld_dir           = '<pad> 
+  pos_file         = '<pad>
   pvalue_threshold = 0.1
 }
 
