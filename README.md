@@ -160,8 +160,8 @@ Run the full pipeline:
 
 Run one module of the pipeline
 
-'''bash
-  nextflow run main.nf --profile singularity --run_eqtl true
+```bash
+ nextflow run main.nf --profile singularity --run_eqtl true
 ```
 
 Only specific steps can be toggled in `nextflow.config`:
