@@ -17,7 +17,7 @@ A Nextflow-driven workflow for integrating GWAS, eQTL, and TWAS analyses to prio
    * [modules/](#modules)
    * [main.nf](#mainnf)
    * [nextflow.config](#nextflowconfig)
-7. [Execution](#execution)
+7. [Execution/Usage](#execution)
 8. [Output Files](#output-files)
 9. [Log Files](#log-files)
 10. [License](#license)
