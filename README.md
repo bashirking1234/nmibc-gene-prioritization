@@ -150,7 +150,7 @@ See [Configuration](#configuration).
 
 ---
 
-## Execution
+## Execution/Usage
 
 Run the full pipeline:
 
@@ -162,6 +162,37 @@ Run one module of the pipeline
 
 ```bash
  nextflow run main.nf --profile singularity --run_eqtl true
+```
+
+Run the pipeline with selective modules (true == run or false == don't run) and custom thresholds by passing flags to `nextflow run`:
+
+```bash
+# Only TWAS & prioritization
+nextflow run main.nf \
+  --run_eqtl false \
+  --run_coloc false \
+  --run_fusion true \
+  --run_prioritization true \
+  --pvalue_threshold 5e-8
+
+# Full pipeline + prioritization
+nextflow run main.nf \
+  --run_eqtl true \
+  --run_coloc true \
+  --run_fusion true \
+  --run_prioritization true \
+  --pvalue_threshold 1e-6
+
+# Only gene prioritization (using existing results)
+nextflow run main.nf \
+  --run_eqtl false \
+  --run_coloc false \
+  --run_fusion false \
+  --run_prioritization true
+
+# Dry-run without prioritization
+nextflow run main.nf \
+  --run_prioritization false
 ```
 
 Only specific steps can be toggled in `nextflow.config`:
