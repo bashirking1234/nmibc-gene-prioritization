@@ -1,0 +1,63 @@
+Bootstrap: docker
+From: rocker/r-base:4.3.1
+
+
+%files
+    /gpfs/home2/hbashir1/tools/plink2R/plink2R /opt/plink2R
+    fusion_twas/FUSION.assoc_test.R /opt/fusion/
+    fusion_twas/FUSION.compute_weights.R /opt/fusion/
+    fusion_twas/FUSION.post_process.R /opt/fusion/
+    fusion_twas/gcta_nr_robust /opt/fusion/
+    fusion_twas/utils /opt/fusion/
+
+
+ 
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    mkdir -p /opt/fusion/
+
+    # System dependencies
+    apt-get update && apt-get install -y \
+        wget unzip git curl \
+        libcurl4-openssl-dev \
+        libxml2-dev \
+        libssl-dev \
+        libblas-dev \
+        liblapack-dev \
+        libpng-dev \
+        libxt6 \
+        libgfortran5 \
+        build-essential \
+        gfortran \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libfreetype6-dev \
+        libtiff5-dev \
+        libjpeg-dev \
+        fonts-dejavu \
+        libfontconfig1-dev \
+        libcairo2-dev && \
+    apt-get clean
+
+    # R packages
+    R -e "install.packages(c('remotes','R.utils','coloc','susieR','ggplot2','viridis','optparse','data.table','Rcpp','RcppEigen','dplyr'), repos='https://cloud.r-project.org')"
+    R -e "install.packages('/opt/plink2R', repos = NULL, type = 'source')" || echo 'FOUT: plink2R lokaal faalde'
+
+    # Rechten en symlinks
+    chmod -R a+x /opt/fusion/
+    chmod -R a+x /opt/fusion/utils/
+
+    mkdir -p /usr/local/bin
+    ln -sf /opt/fusion/FUSION.assoc_test.R /usr/local/bin/FUSION.assoc_test.R
+    ln -sf /opt/fusion/FUSION.compute_weights.R /usr/local/bin/FUSION.compute_weights.R
+    ln -sf /opt/fusion/FUSION.post_process.R /usr/local/bin/FUSION.post_process.R
+    ln -sf /opt/fusion/gcta_nr_robust /usr/local/bin/gcta64
+
+%environment
+    export R_LIBS_USER=/usr/local/lib/R/site-library
+    export PATH=/opt/fusion:/usr/local/bin:$PATH
+    export LC_ALL=C
+
+%runscript
+    exec Rscript "$@"
