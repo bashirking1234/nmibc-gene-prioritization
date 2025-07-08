@@ -1,178 +1,201 @@
 # NMIBC Gene Prioritization Pipeline
 
-Een Nextflow-gestuurde workflow voor de integratie van GWAS-, eQTL- en TWAS-analyses om genen te prioriteren in niet–spierinvasief blaaskanker (NMIBC). Ontworpen voor uitvoering op een HPC-cluster (bijv. Snellius) met Singularity-containers.
+A Nextflow-driven workflow for integrating GWAS, eQTL, and TWAS analyses to prioritize candidate genes in non–muscle invasive bladder cancer (NMIBC). Designed for execution on an HPC cluster (e.g., Snellius) using Singularity containers.
 
 ---
 
-## Inhoudsopgave
+## Table of Contents
 
-1. [Projectstructuur](#projectstructuur)
-2. [Functies](#functies)
-3. [Vereisten](#vereisten)
-4. [Installatie](#installatie)
-5. [Configuratie](#configuratie)
-6. [Workflowcomponenten](#workflowcomponenten)
+1. [Project Structure](#project-structure)
+2. [Features](#features)
+3. [Requirements](#requirements)
+4. [Installation](#installation)
+5. [Configuration](#configuration)
+6. [Workflow Components](#workflow-components)
 
    * [scripts/](#scripts)
    * [modules/](#modules)
    * [main.nf](#mainnf)
    * [nextflow.config](#nextflowconfig)
-7. [Uitvoering](#uitvoering)
-8. [Outputbestanden](#outputbestanden)
-9. [Logbestanden](#logbestanden)
-10. [Licentie](#licentie)
+7. [Execution](#execution)
+8. [Output Files](#output-files)
+9. [Log Files](#log-files)
+10. [License](#license)
 
 ---
 
-## Projectstructuur
+## Project Structure
 
 ```
-├── conf/                # Extra Nextflow- of cluster-instellingen
-├── containers/          # Singularity-images
-├── Data/                # Inputdata (custom)
-├── GTEx/                # Gecontroleerde eQTL-data
-├── scripts/             # R-scripts voor analyses
-├── modules/             # Nextflow-modules per type analyse
-├── r_Scripts/           # Hulpscripts in R
-├── TCGA/                # TCGA-expressiemodellen en pos-bestanden
-├── TWAS/                # Overige TWAS-data
-├── main.nf              # Hoofd-workflow
-├── nextflow.config      # Parameter- en containerconfiguratie
-├── README.md            # Dit bestand
-├── results/             # Gekopieerde output van de workflow
-└── work/                # Nextflow-werkdirectory (intermediair)
+├── containers/          # Singularity images
+├── Data/                # Custom input data
+├── scripts/             # R scripts for analyses
+├── modules/             # Nextflow DSL2 modules per analysis step
+├── main.nf              # Main workflow definition
+├── nextflow.config      # Parameters, container, and executor settings
+├── README.md            # This file
+├── results/             # Workflow outputs (copied)
+└── work/                # Nextflow work directory (intermediate)
 ```
 
 ---
 
-## Functies
+## Features
 
-* **GWAS-filtering** op p-waarde (aanpasbare drempel)
-* **eQTL-lookup**: harmonisatie en matching tussen GWAS- en eQTL-varianten
-* **COLOC-analyse** voor colocalisatie tussen eQTL en GWAS
-* **FUSION TWAS** voor transcriptome-wide associatiestudies
-* **Reproduceerbaarheid** via Singularity-containers
-
----
-
-## Vereisten
-
-* [Nextflow](https://www.nextflow.io) (v20+)
-* Java (OpenJDK 11 of hoger)
-* Singularity (geïnstalleerd op HPC)
-* R (3.6+) met packages: `coloc`, `data.table`, `dplyr`, `R.utils`
+* **GWAS filtering** by p-value (customizable threshold)
+* **eQTL lookup**: harmonization and matching between GWAS and eQTL variants
+* **COLOC analysis** for colocalization of GWAS and eQTL signals
+* **FUSION TWAS** for transcriptome-wide association studies
+* **Gene prioritization** by integrating evidence across methods
+* **Reproducibility** via Singularity containers and Nextflow DSL2
 
 ---
 
-## Installatie
+## Requirements
 
-1. **Clone de repository**
+* [Nextflow](https://nextflow.io) (v21+)
+* Java (OpenJDK 11 or higher)
+* Singularity/Apptainer
+* R (>=4.0) with packages: `data.table`, `coloc`, `optparse`, `plink2R`
+
+---
+
+## Installation
+
+1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/<gebruikersnaam>/nmibc-geneprio.git
+   git clone https://github.com/<username>/nmibc-geneprio.git
    cd nmibc-geneprio
    ```
-2. **Zorg dat Nextflow en Singularity beschikbaar zijn**
-3. **Pas `nextflow.config` aan** (data- en containerpaden)
+2. **Ensure Nextflow and Singularity are available** on your HPC
+3. **Adjust `nextflow.config`** to reflect your data and container paths
 
 ---
 
-## Configuratie
+## Configuration
 
-Alle inputpaden, parameters en container-instellingen staan in `nextflow.config`:
+All input paths, parameters, and container settings are defined in `nextflow.config`:
 
 ```groovy
 params {
-  gwas_file        = '<pad> 
-  eqtl_lookup_file = '<pad> 
-  eqtl_coloc_file  = '<pad> 
-  weights_dir      = '<pad> 
-  ld_dir           = '<pad> 
-  pos_file         = '<pad>
-  pvalue_threshold = 0.1
+  gwas_file           = 'path/to/file'
+  eqtl_file           = 'path/to/file'
+  weights_dir         = 'path/to/file'
+  weights_list        = 'path/to/file'
+  ld_dir              = 'path/to/file'
+  pvalue_threshold    = 0.1
 }
 
-singularity.enabled = true
-singularity.autoMounts = true
-
-process {
-  container = '<pad>/containers/fusion.sif'
-  containerOptions = '--bind <pad>/containers/fusion_twas:/fusion_twas'
-}
-
-profiles {
-  singularity {
-    process.withName: 'COLOC_ANALYSIS' {
-      container = '<pad>/containers/fusion.sif'
-      containerOptions = '--bind <pad>/containers/fusion_twas:/fusion_twas'
+singularity {
+  enabled    = true
+  autoMounts = true
+  binds = [
+    '/home/user/Data:/home/user/Data',
+    '/home/user/nmibc-geneprio:/home/user/nmibc-geneprio'
+  ]
+  process {
+    withName: 'FUSION_TWAS' {
+      binds = ['/home/user/nmibc-geneprio/containers/fusion_twas:/fusion_twas']
     }
   }
 }
+
+executor {
+  queueSize = 2
+}
 ```
 
-> Pas `<pad>` aan naar je lokale paden op de HPC.
+> Update the paths above to match your local HPC directories.
 
 ---
 
-## Workflowcomponenten
+## Workflow Components
 
 ### scripts/
 
-Alle R-scripts die in de modules worden aangeroepen:
+R scripts called by each module:
 
-* **coloc.R**: voert `coloc.abf` uit en genereert `coloc_result.txt` + credible set (`coloc_cs_snps.txt`).
-* **eqtl\_lookup.R**: harmoniseert en matcht GWAS- en eQTL-varianten, schrijft `eqtl_lookup_result.txt`.
-* **fusion\_twas.R**: runt FUSION TWAS per gen, maakt `*.fusion.out` en een samengevoegd bestand.
+* **eqtl\_lookup.R**: Harmonizes and matches GWAS and eQTL variants; outputs `eqtl_lookup_result.txt`.
+* **coloc.R**: Runs `coloc.abf` per locus; generates `coloc_hypotheses_summary.txt`, `coloc_snp_level.txt`, and `coloc_candidate_genes.txt`.
+* **fusion\_twas.R**: Executes FUSION TWAS per gene; outputs per-chromosome results in `fusion_twas_output/chr{chr}_results.txt`.
+* **prioritize\_genes.R**: Counts and ranks genes across eQTL, COLOC, and TWAS; writes `gene_priority.tsv`.
 
 ### modules/
 
-Nextflow-processen per analyse:
+Nextflow DSL2 modules wrapping each analysis step:
 
-* **coloc.nf** → `COLOC_ANALYSIS`
 * **eqtl\_lookup.nf** → `EQTL_LOOKUP`
+* **coloc.nf**       → `COLOC_ANALYSIS`
 * **fusion\_twas.nf** → `FUSION_TWAS`
+* **gene\_prioritization.nf** → `GENE_PRIORITIZATION`
 
-Elk proces leest input (`script`, inputbestanden), voert Rscript uit en kopieert output naar `results/`.
+Each module defines inputs (data files and script), executes the R script, and publishes results to `results/`.
 
 ### main.nf
 
-Orkestreert de volledige workflow:
+Orchestrates the workflow steps:
 
-1. **GWAS-filtering** (`FILTER_GWAS`): filtert op p-waarde, telt SNPs.
-2. **EQTL\_LOOKUP**: harmoniseert gefilterde GWAS met eQTL.
-3. **COLOC\_ANALYSIS**: colocalisatie-analyse met GTEx eQTL.
-4. **FUSION\_TWAS**: transcriptome-wide associatiestudie met FUSION.
+1. **FILTER\_GWAS**: Filters GWAS by p-value threshold and writes `filtered_gwas.tbl`.
+2. **EQTL\_LOOKUP**: Performs eQTL lookup on the filtered GWAS results.
+3. **COLOC\_ANALYSIS**: Runs colocalization between GWAS and eQTL.
+4. **FUSION\_TWAS**: Conducts transcriptome-wide association per chromosome.
+5. **GENE\_PRIORITIZATION**: Integrates outputs to rank candidate genes.
+
+Conditional execution of each step is controlled via `params.run_eqtl`, `params.run_coloc`, etc.
 
 ### nextflow\.config
 
-Zie [Configuration](#configuratie).
+See [Configuration](#configuration).
 
 ---
 
-## Uitvoering
+## Execution
+
+Run the full pipeline:
 
 ```bash
-nextflow run main.nf -profile singularity
+ nextflow run main.nf --profile singularity
+```
+
+Run one module of the pipeline
+
+'''bash
+  nextflow run main.nf --profile singularity --run_eqtl true
+```
+
+Only specific steps can be toggled in `nextflow.config`:
+
+```groovy
+params {
+  run_eqtl           = true
+  run_coloc          = true
+  run_fusion         = true
+  run_prioritization = true
+}
 ```
 
 ---
 
-## Outputbestanden
+## Output Files
 
-Alle workflows schrijven naar `results/`:
+Workflow outputs are organized under `results/`:
 
-* `results/gwas/filtered_gwas.tbl`, `snp_count.log`
-* `results/eqtl_lookup/eqtl_lookup_result.txt`
-* `results/coloc/coloc_result.txt`, `coloc_cs_snps.txt`
-* `results/fusion/` (per-gen `.fusion.out` en `merged_fusion_results.txt`)
+* **GWAS filtering**: `results/gwas/filtered_gwas.tbl`, `snp_count.log`
+* **eQTL lookup**: `results/eqtl_lookup/eqtl_lookup_result.txt`
+* **COLOC**: `results/coloc/coloc_hypotheses_summary.txt`, `coloc_snp_level.txt`, `coloc_candidate_genes.txt`, `coloc.log`
+* **FUSION TWAS**: `results/fusion/chr{chr}/fusion_twas_output/chr{chr}_results.txt`
+* **Gene Prioritization**: `results/gene_prioritization/gene_priority.tsv`
 
 ---
 
-## Logbestanden
+## Log Files
 
-* Interne logs in `work/`
-* Console-output in `logs/` (Slurm stdout)
+* **Nextflow work directory**: `work/` (intermediate files)
+* **Console logs**: standard output and error
 
-## Licentie
+---
 
-Dit project valt onder de MIT License. Zie [LICENSE](LICENSE) voor details.
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
