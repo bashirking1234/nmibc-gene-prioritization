@@ -1,3 +1,41 @@
+# ------------------------------------------------------------------------------
+# Script Name: eqtl_lookup.R
+#
+# Description:
+#   This script performs a lookup to identify overlapping genetic variants between
+#   a TensorQTL eQTL file and a metaGWAS file. It harmonizes variant identifiers,
+#   merges the datasets based on chromosome, position, and alleles, and outputs
+#   the matched variants with relevant annotation.
+#
+# Usage:
+#   Rscript eqtl_lookup.R <eqtl_input> <gwas_input> <output_file>
+#     - <eqtl_input>:    Path to the TensorQTL eQTL input file (tab-delimited).
+#     - <gwas_input>:    Path to the metaGWAS input file (tab-delimited).
+#     - <output_file>:   Path to the output file for matched variants (tab-delimited).
+#
+# Arguments:
+#   eqtl_input   : Input file containing eQTL summary statistics.
+#   gwas_input   : Input file containing metaGWAS summary statistics.
+#   output_file  : Output file to write the filtered, matched variants.
+#
+# Details:
+#   - The script expects both input files to contain variant information in the
+#     format: Chr:Position:Allele1:Allele2 (with or without 'chr' prefix).
+#   - It harmonizes the variant identifiers, splits them into separate columns,
+#     and merges the datasets on these columns.
+#   - Only variants present in both datasets are retained in the output.
+#   - The output file contains selected columns, reordered if present.
+#
+# Dependencies:
+#   - data.table
+#   - R.utils
+#
+# Example:
+#   Rscript eqtl_lookup.R eqtl_data.txt gwas_data.txt matched_variants.txt
+#
+# Author: [Your Name]
+# Date: [Date]
+# ------------------------------------------------------------------------------
 #!/usr/bin/env Rscript
 
 library(data.table)
@@ -35,7 +73,7 @@ eqtl[, Chr := as.character(Chr)]
 common <- merge(gwas[, .(Chr, Position, Allele1, Allele2)],
                 eqtl[, .(Chr, Position, Allele1, Allele2)],
                 by = c("Chr", "Position", "Allele1", "Allele2"))
-cat("Aantal overlappende varianten gevonden:", nrow(common), "\n")
+cat("Number of overlapping variants found:", nrow(common), "\n")
 
 # Merge full data
 merged <- merge(eqtl,
@@ -46,7 +84,7 @@ merged <- merge(eqtl,
 # Rename to avoid confusion
 setnames(merged, "MarkerName", "MarkerName_data")
 
-# Reorder columns if ze bestaan
+# Reorder columns if they exist
 desired_cols <- c("Cancer_type", "Gene_name", "RS_id", "Variant", "Chr",
                   "MarkerName_data", "Position", "Allele1", "Allele2",
                   "Credible_Set", "Credible_Set_Size", "PIP")
