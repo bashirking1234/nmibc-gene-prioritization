@@ -1,3 +1,5 @@
+#!/usr/bin/env nextflow
+nextflow.enable.dsl = 2
 /*
  * Main Nextflow workflow for NMIBC gene prioritization pipeline.
  *
@@ -36,8 +38,7 @@
  * Usage:
  *   nextflow run main.nf --gwas_file <file> --pvalue_threshold <value> [other params...]
  */
-#!/usr/bin/env nextflow
-nextflow.enable.dsl = 2
+
 
 include { EQTL_LOOKUP        } from './modules/eqtl_lookup.nf'
 include { COLOC_ANALYSIS      } from './modules/coloc.nf'
