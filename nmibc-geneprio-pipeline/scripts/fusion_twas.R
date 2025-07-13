@@ -1,3 +1,48 @@
+# ------------------------------------------------------------------------------
+# Script Name: fusion_twas.R
+# Description: 
+#   This script performs a robust FUSION Transcriptome-Wide Association Study (TWAS)
+#   analysis on GWAS summary statistics using precomputed gene expression weights 
+#   and a PLINK LD reference panel, all on the hg38 genome build. It outputs a 
+#   comprehensive 18-column result table per gene, including TWAS statistics, 
+#   heritability, best GWAS SNP, top eQTL, and model performance metrics.
+#
+# Usage:
+#   Rscript fusion_twas.R --sumstats <GWAS_sumstats> --weights <weight_list> \
+#     --weights_dir <weights_directory> --ref_ld_chr <plink_ld_prefix> \
+#     --chr <chromosome> --out <output_file> [--hsq_p <min_hsq_pvalue>]
+#
+# Command-line Options:
+#   --sumstats      : Path to GWAS summary statistics file (required, tab-delimited)
+#   --weights       : Path to weight list file (required)
+#   --weights_dir   : Directory containing weight files (required)
+#   --ref_ld_chr    : Prefix for PLINK LD reference files (required)
+#   --chr           : Chromosome to analyze (required, e.g., "1", "2", ..., "X")
+#   --out           : Output file path (required)
+#   --hsq_p         : Minimum heritability p-value threshold (default: 0.01)
+#
+# Main Steps:
+#   1. Load and filter GWAS summary statistics for the specified chromosome.
+#   2. Load PLINK LD reference panel for the chromosome.
+#   3. Load gene expression weight list and filter to the chromosome.
+#   4. For each gene:
+#      - Load weight file and extract SNP weights.
+#      - Subset LD and GWAS data to the gene region (±500kb).
+#      - Match SNPs across weights, LD, and GWAS, performing allele QC.
+#      - Compute TWAS Z-score and p-value using the best model.
+#      - Extract heritability, best GWAS SNP, top eQTL, and model CV metrics.
+#      - Record results in the output table.
+#   5. Write the results table to the specified output file.
+#
+# Dependencies:
+#   - plink2R
+#   - optparse
+#
+# Notes:
+#   - Assumes all input files are formatted correctly and on the hg38 build.
+#   - Designed for use on HPC clusters with custom R library paths.
+#   - Output table contains 18 columns per gene for downstream analysis.
+# ------------------------------------------------------------------------------
 #!/usr/bin/env Rscript
 
 # ------------------------------
