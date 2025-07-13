@@ -43,6 +43,9 @@
 #   - Designed for use on HPC clusters with custom R library paths.
 #   - Output table contains 18 columns per gene for downstream analysis.
 # ------------------------------------------------------------------------------
+#' @author Bashir Hussein 
+#' @date 2025-01-07
+#'
 #!/usr/bin/env Rscript
 
 # ------------------------------
