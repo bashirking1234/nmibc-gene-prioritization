@@ -1,3 +1,41 @@
+/*
+ * Main Nextflow workflow for NMIBC gene prioritization pipeline.
+ *
+ * This workflow orchestrates the following steps:
+ * 1. GWAS Filtering: Filters GWAS summary statistics based on a user-defined p-value threshold.
+ * 2. eQTL Lookup: Optionally performs eQTL lookup using filtered GWAS results and an eQTL file.
+ * 3. Colocalization Analysis: Optionally runs colocalization analysis between GWAS and eQTL data.
+ * 4. Fusion TWAS: Optionally runs FUSION TWAS analysis across chromosomes 1-22.
+ * 5. Gene Prioritization: Optionally prioritizes genes based on results from previous analyses.
+ *
+ * Modules included:
+ *   - EQTL_LOOKUP: eQTL lookup process (scripts/eqtl_lookup.R)
+ *   - COLOC_ANALYSIS: Colocalization analysis process (scripts/coloc.R)
+ *   - FUSION_TWAS: FUSION TWAS process (scripts/fusion_twas.R)
+ *   - GENE_PRIORITIZATION: Gene prioritization process (scripts/prioritize_genes.R)
+ *
+ * Parameters (to be provided via Nextflow config or command line):
+ *   - params.gwas_file: Path to GWAS summary statistics file.
+ *   - params.pvalue_threshold: P-value threshold for GWAS filtering.
+ *   - params.eqtl_file: Path to eQTL file.
+ *   - params.weights_list: Path to FUSION weights list.
+ *   - params.weights_dir: Directory containing FUSION weights.
+ *   - params.ld_dir: Directory containing LD reference panels.
+ *   - params.run_eqtl: Boolean, whether to run eQTL lookup.
+ *   - params.run_coloc: Boolean, whether to run colocalization analysis.
+ *   - params.run_fusion: Boolean, whether to run FUSION TWAS.
+ *   - params.run_prioritization: Boolean, whether to run gene prioritization.
+ *   - params.eqtl_result_file: Path to eQTL lookup results (for prioritization).
+ *   - params.coloc_candidates_file: Path to colocalization candidates (for prioritization).
+ *   - params.fusion_results_dir: Directory with FUSION TWAS results (for prioritization).
+ *
+ * Output:
+ *   - Filtered GWAS file and SNP count log in results/gwas/
+ *   - Results from each analysis module, as configured.
+ *
+ * Usage:
+ *   nextflow run main.nf --gwas_file <file> --pvalue_threshold <value> [other params...]
+ */
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
