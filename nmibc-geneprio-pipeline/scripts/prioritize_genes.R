@@ -1,3 +1,43 @@
+#' ---
+#' title: "prioritize_genes.R"
+#' author: "Your Name"
+#' date: "`r Sys.Date()`"
+#' output: none
+#' ---
+#'
+#' ## Description
+#' This script counts and ranks genes based on their occurrence across three sources:
+#' - eQTL results
+#' - Coloc candidate genes
+#' - Fusion TWAS results
+#'
+#' The script outputs a table with counts from each source, a total count, and a rank for each gene.
+#'
+#' ## Usage
+#' ```
+#' Rscript prioritize_genes.R <eqtl_file> <coloc_file> <fusion_dir> <output_file>
+#' ```
+#' - `<eqtl_file>`: Tab-delimited file with a `gene_name` column.
+#' - `<coloc_file>`: Tab-delimited file with a `candidate_genes` column (semicolon-separated gene names).
+#' - `<fusion_dir>`: Directory containing Fusion TWAS result files (ending with `_results.txt`).
+#' - `<output_file>`: Output file path for the ranked gene table.
+#'
+#' ## Output
+#' A tab-delimited file with the following columns:
+#' - `gene_id`: Gene identifier.
+#' - `eqtl_count`: Number of times the gene appears in the eQTL file.
+#' - `coloc_count`: Number of times the gene appears in the Coloc file.
+#' - `fusion_count`: Number of times the gene appears in Fusion TWAS results.
+#' - `total_count`: Sum of the above counts.
+#' - `rank`: Rank based on total count (descending).
+#'
+#' ## Dependencies
+#' - data.table
+#'
+#' ## Example
+#' ```
+#' Rscript prioritize_genes.R eqtl.tsv coloc.tsv fusion_results/ prioritized_genes.tsv
+#' ```
 #!/usr/bin/env Rscript
 # -------------------------------------------------------------------
 # Count & rank genes by how often they appear in eQTL, Coloc & TWAS
