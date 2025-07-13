@@ -38,6 +38,9 @@
 #' ```
 #' Rscript prioritize_genes.R eqtl.tsv coloc.tsv fusion_results/ prioritized_genes.tsv
 #' ```
+#' @author Bashir Hussein 
+#' @date 2025-01-07
+#'
 #!/usr/bin/env Rscript
 # -------------------------------------------------------------------
 # Count & rank genes by how often they appear in eQTL, Coloc & TWAS
