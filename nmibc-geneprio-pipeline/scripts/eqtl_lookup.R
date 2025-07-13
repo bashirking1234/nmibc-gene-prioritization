@@ -33,8 +33,9 @@
 # Example:
 #   Rscript eqtl_lookup.R eqtl_data.txt gwas_data.txt matched_variants.txt
 #
-# Author: [Your Name]
-# Date: [Date]
+#' @author Bashir Hussein 
+#' @date 2025-01-07
+#'
 # ------------------------------------------------------------------------------
 #!/usr/bin/env Rscript
 
