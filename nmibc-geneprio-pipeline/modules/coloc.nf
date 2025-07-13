@@ -1,3 +1,30 @@
+/*
+ * COLOC_ANALYSIS process
+ *
+ * This Nextflow process performs colocalization analysis between eQTL and GWAS datasets using an R script.
+ *
+ * Inputs:
+ *   - eqtl_file: Path to the eQTL summary statistics file.
+ *   - gwas_file: Path to the GWAS summary statistics file.
+ *   - script: Path to the R script that performs the colocalization analysis.
+ *
+ * Outputs:
+ *   - coloc.log: Log file capturing the run details.
+ *   - coloc_hypotheses_summary.txt: Locus-level summary of posterior probabilities for hypotheses H0–H4.
+ *   - coloc_snp_level.txt: SNP-level posterior probability table.
+ *   - coloc_candidate_genes.txt: List of candidate genes identified by the analysis.
+ *
+ * Additional Information:
+ *   - The process sets environment variables to limit BLAS and OpenMP threads to 1 for reproducibility.
+ *   - Output files are published to the '/home/hbashir1/nmibc-geneprio/results/coloc' directory.
+ *   - The R script is executed with the following arguments:
+ *       1. eQTL file path
+ *       2. GWAS file path
+ *       3. Output directory (current directory)
+ *       4. p-value threshold for eQTLs (1e-6). Can be changed to a different value if needed.
+ *       5. p-value threshold for GWAS (1e-6). Can be changed to a different value if needed.
+ *       6. Maximum number of SNPs to consider (500). Can be changed to a different value if needed.
+ */
 process COLOC_ANALYSIS {
     tag "coloc-analysis"
     cpus 1
