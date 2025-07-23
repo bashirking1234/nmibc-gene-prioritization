@@ -1,9 +1,5 @@
 #' ---
-#' title: "prioritize_genes.R"
-#' author: "Your Name"
-#' date: "`r Sys.Date()`"
-#' output: none
-#' ---
+#' "prioritize_genes.R"
 #'
 #' ## Description
 #' This script counts and ranks genes based on their occurrence across three sources:
@@ -38,9 +34,6 @@
 #' ```
 #' Rscript prioritize_genes.R eqtl.tsv coloc.tsv fusion_results/ prioritized_genes.tsv
 #' ```
-#' @author Bashir Hussein 
-#' @date 2025-01-07
-#'
 #!/usr/bin/env Rscript
 # -------------------------------------------------------------------
 # Count & rank genes by how often they appear in eQTL, Coloc & TWAS
@@ -62,7 +55,7 @@ eqtl_genes <- eqtl$gene_name
 
 # 2) Coloc candidate genes (may be semicolon–separated)
 coloc <- fread(coloc_file, sep="\t", header=TRUE)
-coloc_genes <- unlist(strsplit(coloc$candidate_genes, ";"))
+coloc_genes <- unlist(strsplit(coloc$gene_name, ";"))
 
 # 3) Fusion TWAS genes: extract prefix of ID column before underscore
 fusion_files <- list.files(path=fusion_dir,
