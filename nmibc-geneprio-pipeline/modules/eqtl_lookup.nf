@@ -38,7 +38,6 @@ process EQTL_LOOKUP {
 
     output:
     path "eqtl_lookup_result.txt", emit: eqtl_result
-    publishDir "results", mode: 'copy'
 
     script:
     """
