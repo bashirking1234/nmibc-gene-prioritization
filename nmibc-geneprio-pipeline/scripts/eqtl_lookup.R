@@ -54,8 +54,6 @@ output_file <- args[3]
 
 # Load TensorQTL eQTL file
 eqtl <- fread(eqtl_input, sep = "\t", header = TRUE)
-eqtl[, variant_id := gsub("_", ":", variant_id)]
-eqtl[, variant_id := sub(":b38", "", variant_id)]
 eqtl[, c("Chr", "Position", "Allele1", "Allele2") := tstrsplit(variant_id, ":", keep = c(1, 2, 3, 4))]
 eqtl[, Chr := sub("chr", "", Chr)]
 eqtl[, Position := as.integer(Position)]
@@ -84,13 +82,6 @@ merged <- merge(eqtl,
 
 # Rename to avoid confusion
 setnames(merged, "MarkerName", "MarkerName_data")
-
-# Reorder columns if they exist
-desired_cols <- c("Cancer_type", "Gene_name", "RS_id", "Variant", "Chr",
-                  "MarkerName_data", "Position", "Allele1", "Allele2",
-                  "Credible_Set", "Credible_Set_Size", "PIP")
-existing_cols <- desired_cols[desired_cols %in% colnames(merged)]
-setcolorder(merged, existing_cols)
 
 # Filter out NAs
 filtered <- merged[!is.na(MarkerName_data)]
