@@ -87,11 +87,14 @@ workflow {
     }
 
     
-
-    // 3) Coloc analysis
+    // 3) Coloc analysis (using raw GWAS)
     coloc_input = Channel
         .of(file(params.gwas_file))
-        .map { raw -> tuple(file(params.eqtl_file), raw, coloc_script) }
+        .map { rawGwas -> tuple(
+            file(params.eqtl_file),
+            rawGwas,
+            file("scripts/coloc.R")
+        ) }
 
     // 4) Fusion TWAS
     fusion_input = Channel
