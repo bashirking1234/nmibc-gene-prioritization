@@ -23,7 +23,7 @@
  *       3. Output directory (current directory)
  *       4. p-value threshold for eQTLs (1e-6). Can be changed to a different value if needed.
  *       5. p-value threshold for GWAS (1e-6). Can be changed to a different value if needed.
- *       6. Maximum number of SNPs to consider (500). Can be changed to a different value if needed.
+ *       6. Size of window for coloc analysis (500 +/- kb). Can be adjusted 
  */
 process COLOC_ANALYSIS {
     tag "coloc-analysis"
