@@ -1,4 +1,4 @@
-#' coloc_gtex.R - Colocalization Analysis Script
+#' coloc.R - Colocalization Analysis Script
 #'
 #' This script performs colocalization analysis between eQTL and GWAS summary statistics using the `coloc` R package.
 #' It identifies loci with evidence for shared genetic signals between gene expression and disease/trait association.
@@ -46,8 +46,6 @@
 #' - The eQTL sample size (`N_eqtl`) is hardcoded to 134 (bladder tissue).
 #' - Designed for use with GTEx eQTL and GWAS summary statistics.
 #'
-#' @author Bashir Hussein 
-#' @date 2025-01-07
 #'
 #!/usr/bin/env Rscript
 suppressMessages({
@@ -86,18 +84,20 @@ eqtl[, c("chr", "pos", "ref", "alt") := tstrsplit(snp, ":", fixed = TRUE)]
 eqtl[, pos := as.integer(pos)]
 
 # Compute eQTL summary stats
-N_eqtl <- 134  # fixed sample size for Bladder tissue
+N_eqtl <- 80  # fixed sample size for Bladder tissue # 134 in GTEx v8 and 80 in BCG dataset
 eqtl[, `:=`(
   beta_eqtl    = as.numeric(slope),      # effect size
   varbeta_eqtl = (slope_se)^2,            # variance of effect
   MAF_eqtl     = as.numeric(af)           # minor allele frequency
 )]
-# Estimate trait SD (sdY) from summary stats
-eqtl_sdY <- sdY.est(
+
+# corrected: explicitly invoke the unexported function
+eqtl_sdY <- coloc:::sdY.est(
   vbeta = eqtl$varbeta_eqtl,
   maf   = eqtl$MAF_eqtl,
   n     = N_eqtl
 )
+
 
 # === Read & prep GWAS data ===
 # Survival trait meta-GWAS input
@@ -115,6 +115,7 @@ gwas[, `:=`(
   N_gwas       = as.numeric(TotalSampleSize),
   cases_gwas   = as.numeric(TotalEvents)   # number of events
 )]
+
 # Compute controls per SNP
 gwas[, controls_gwas := N_gwas - cases_gwas]
 
@@ -197,7 +198,13 @@ for (i in seq_along(lead_snps)) {
 }
 
 # === Write summary outputs ===
-fwrite(rbindlist(locus_list), file.path(output_dir, "coloc_hypotheses_summary.txt"), sep = "\t")
+fwrite(
+  rbindlist(locus_list)[PP.H4 >= 0.8],
+  file.path(output_dir, "coloc_hypotheses_summary.txt"),
+  sep = "\t"
+)
+
+
 fwrite(rbindlist(snp_list),   file.path(output_dir, "coloc_snp_level.txt"),         sep = "\t")
 message("Wrote hypothesis and SNP-level summaries.")
 
