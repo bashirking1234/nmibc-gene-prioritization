@@ -150,12 +150,6 @@ Run the full pipeline:
  nextflow run main.nf --profile singularity
 ```
 
-Run one module of the pipeline
-
-```bash
- nextflow run main.nf --profile singularity --run_eqtl true
-```
-
 Run the pipeline with selective modules (true == run or false == don't run) and custom thresholds by passing flags to `nextflow run`:
 
 ```bash
