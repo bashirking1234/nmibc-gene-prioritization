@@ -1,6 +1,6 @@
 # NMIBC Gene Prioritization Pipeline
 
-A Nextflow-driven workflow for integrating GWAS, eQTL, and TWAS analyses to prioritize candidate genes in non–muscle invasive bladder cancer (NMIBC). Designed for execution on an HPC cluster (e.g., Snellius) using Singularity containers.
+A Nextflow-driven workflow for integrating eQTL-lookup, colocalization, and Transcriptome-Wide-Association Study analyses to prioritize candidate genes in non–muscle invasive bladder cancer (NMIBC). Designed for execution on an HPC cluster (e.g., Snellius) using Singularity containers.
 
 ---
 
