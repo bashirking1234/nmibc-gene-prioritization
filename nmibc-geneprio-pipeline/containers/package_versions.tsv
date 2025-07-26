@@ -1,0 +1,12 @@
+Package	Version
+Rcpp	1.1.0
+RcppEigen	0.3.4.0.2
+optparse	1.7.5
+data.table	1.17.8
+dplyr	1.1.4
+R.utils	2.13.0
+coloc	5.2.3
+susieR	0.14.2
+ggplot2	3.5.2
+viridis	0.6.5
+plink2R	1.1
