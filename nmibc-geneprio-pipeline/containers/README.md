@@ -12,7 +12,7 @@ This container provides a reproducible, portable R environment for running the *
 
 ## Features
 
-### R Packages for GWAS, eQTL, and Visualization
+### Required R Packages 
 
 - `Rcpp`, `RcppEigen`
 - `coloc`, `susieR`
