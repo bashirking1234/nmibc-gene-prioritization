@@ -37,7 +37,7 @@ This container provides a reproducible, portable R environment for running the *
 
 ---
 
-## 🛠️ Building the Container
+## Building the Container
 
 To build this container locally with Singularity:
 
