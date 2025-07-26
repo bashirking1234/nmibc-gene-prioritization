@@ -40,6 +40,9 @@ process FUSION_TWAS {
     output:
     path "fusion_twas_output", emit: fusion_results
 
+    // execution log
+    path "fusion_twas.log",       emit: fusion_log
+
     publishDir "results/fusion/chr${chr}", mode: 'copy'
 
     script:
@@ -51,8 +54,8 @@ process FUSION_TWAS {
     export MKL_NUM_THREADS=${task.cpus}
 
     # Debug: show LD files at the staged prefix
-    echo "LD files in container at: ${ref_ld_chr_prefix}/"
-    ls -lh ${ref_ld_chr_prefix}/chr${chr}.* || true
+    echo "LD files in container at: ${ref_ld_chr_prefix}/" > fusion_twas.log 2>&1
+    ls -lh ${ref_ld_chr_prefix}/chr${chr}.* >> fusion_twas.log 2>&1 || true
 
     Rscript ${script} \
       --sumstats    ${gwas_file} \
@@ -60,6 +63,8 @@ process FUSION_TWAS {
       --weights_dir ${weights_dir} \
       --ref_ld_chr  ${ref_ld_chr_prefix}/chr \
       --chr         ${chr} \
-      --out         fusion_twas_output/chr${chr}_results.txt
+      --out         fusion_twas_output/chr${chr}_results.txt \
+    >> fusion_twas.log 2>&1
+
     """
 }
