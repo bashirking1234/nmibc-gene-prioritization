@@ -43,6 +43,7 @@ To build this container locally with Singularity:
 
 ```bash
 apptainer build pipeline.sif singularity.def
+```
 
 License
 This container is based on rocker/r-base and includes open-source R packages. Please refer to each package’s license for more details.
