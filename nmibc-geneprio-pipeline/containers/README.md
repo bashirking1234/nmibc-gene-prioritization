@@ -42,7 +42,6 @@ This container provides a reproducible, portable R environment for running the *
 To build this container locally with Singularity:
 
 ```bash
-sudo singularity build my_container.sif Singularity
 apptainer build pipeline.sif singularity.def
 
 License
