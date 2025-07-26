@@ -45,8 +45,8 @@ A Nextflow-driven workflow for integrating eQTL-lookup, colocalization, and Tran
 * **GWAS filtering** by p-value (customizable threshold)
 * **eQTL lookup**: harmonization and matching between GWAS and eQTL variants
 * **COLOC analysis** for colocalization of GWAS and eQTL signals
-* **FUSION TWAS** for transcriptome-wide association studies
-* **Gene prioritization** by integrating evidence across methods
+* **FUSION TWAS** for transcriptome-wide association study
+* **Gene prioritization** by integrating results and ranking them across methods
 * **Reproducibility** via Singularity containers and Nextflow DSL2
 
 ---
@@ -89,16 +89,8 @@ params {
 
 singularity {
   enabled    = true
+  engine     = 'apptainer'   // force Apptainer if both are installed
   autoMounts = true
-  binds = [
-    '/home/user/Data:/home/user/Data',
-    '/home/user/nmibc-geneprio:/home/user/nmibc-geneprio'
-  ]
-  process {
-    withName: 'FUSION_TWAS' {
-      binds = ['/home/user/nmibc-geneprio/containers/fusion_twas:/fusion_twas']
-    }
-  }
 }
 
 executor {
