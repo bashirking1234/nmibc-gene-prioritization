@@ -65,7 +65,7 @@ A Nextflow-driven workflow for integrating eQTL-lookup, colocalization, and Tran
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/<username>/nmibc-geneprio.git
+   git clone https://github.com/bashirking1234/nmibc-geneprio.git
    cd nmibc-geneprio
    ```
 2. **Ensure Nextflow and Singularity are available** on your HPC
