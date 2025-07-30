@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=plink2_chr22
-#SBATCH --output=/home/hbashir1/nmibc_eqtl_analysis/data_prep/genotype/logs/plink2.out
-#SBATCH --error=/home/hbashir1/nmibc_eqtl_analysis/data_prep/genotype/logs/plink2.err
+#SBATCH --output=/logs/plink2.out
+#SBATCH --error=/logs/plink2.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=1
