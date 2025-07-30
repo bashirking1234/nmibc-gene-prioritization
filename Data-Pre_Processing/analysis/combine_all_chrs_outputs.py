@@ -31,10 +31,10 @@ Output:
 
 
 # === Path to tensrorwtl outputs ===
-base_dir = "/home/hbashir1/nmibc_eqtl_analysis/analysis/output_dir/"
+base_dir = ""
 
 # === collect all chr1–22 files ===
-base_dir = "/home/hbashir1/nmibc_eqtl_analysis/analysis/output_dir/"
+base_dir = ""
 parquet_files = sorted(
     glob.glob(os.path.join(base_dir, "tensorqtl_result.cis_qtl_pairs.chr*.parquet"))
 )
