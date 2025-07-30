@@ -10,4 +10,4 @@
 module load python/3.8  # Adjust the Python version as needed
 
 # Run the Python script
-python3 /home/hbashir1/metaGWASPipeline/rnaseq_eQTL/read_parquet.py 
+python3 
