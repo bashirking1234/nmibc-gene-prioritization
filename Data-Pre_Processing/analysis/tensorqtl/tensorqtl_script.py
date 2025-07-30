@@ -37,9 +37,9 @@ import psutil
 print(f" Memory available: {psutil.virtual_memory().available / 1024 ** 3:.2f} GB")
 
 # === Input paths ===
-plink_prefix_path = "/home/hbashir1/nmibc_eqtl_analysis/data_prep/genotype/output_dir/chr22c_data"
-expression_bed = "/home/hbashir1/nmibc_eqtl_analysis/data_prep/phenotype/phenotype_tensorqtl_ready.bed.gz"
-covariates_file = "/home/hbashir1/nmibc_eqtl_analysis/data_prep/covariates/covariates_tensorqtl_ready2.txt"
+plink_prefix_path = ""
+expression_bed = ""
+covariates_file = ""
 
 
 # === Output path ===
