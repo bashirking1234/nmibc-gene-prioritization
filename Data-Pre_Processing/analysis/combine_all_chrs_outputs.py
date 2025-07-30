@@ -53,4 +53,4 @@ combined_df = pd.concat(dfs, ignore_index=True)
 # === save ===
 out_path = os.path.join(base_dir, "tensorqtl_results_chr1_22_combined.parquet")
 combined_df.to_parquet(out_path)
-print(f"✅ results saved: {out_path}")
+print(f"results saved: {out_path}")
