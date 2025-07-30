@@ -45,9 +45,9 @@ covariates_file = ""
 # === Output path ===
 # Note: The prefix should not include the file extension. TensorQTL will add it automatically.
 # Example of output will be: tensorqtl_result.cis_eqtl_pairs.chr22.parquet
-# the path is only: /home/hbashir1/nmibc_eqtl_analysis/analysis/
+# the path is only: 
 # Note: Adjust the prefix to your desired output directory and file name.
-prefix = "/home/hbashir1/nmibc_eqtl_analysis/analysis/tensorqtl_result" 
+prefix = "" 
 
 
 # === Load expression data ===
