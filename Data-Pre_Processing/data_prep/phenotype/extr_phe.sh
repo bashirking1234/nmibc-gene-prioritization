@@ -28,17 +28,17 @@ export LD_LIBRARY_PATH=~/miniconda3/lib:$LD_LIBRARY_PATH
 echo "Library path set."
 
 # Create output directory if it doesn't exist
-OUTPUT_DIR="/mnt/home1/bashirh/phenotypes/output_dir"
+OUTPUT_DIR=""
 echo "Creating output directory if it doesn't exist..."
 mkdir -p $OUTPUT_DIR
 echo "Output directory is ready."
 
 # Set paths
-RNA_TAR_FILE="/mnt/home1/bashirh/RNAseq/UroLife_rna.tar.gz"
-RNA_OUTPUT_DIR="/mnt/home1/bashirh/RNAseq"
+RNA_TAR_FILE=""
+RNA_OUTPUT_DIR=""
 BED_FILE="$OUTPUT_DIR/phenotypes.bed"
 NORMALIZED_COUNTS_FILE="$RNA_OUTPUT_DIR/normalizedCountMatrix_all.tsv"
-GTF_FILE="/mnt/home1/bashirh/GTF/Homo_sapiens.GRCh38.113.gtf.gz"
+GTF_FILE=""
 ANNOTATION_FILE="$OUTPUT_DIR/gene_annotation.tsv"
 
 # Extract RNA-seq data
