@@ -15,7 +15,7 @@ import pandas as pd
 
 
 # 1. Loads lists of male and female sample IDs from text files.
-bed_file = "/home/hbashir1/nmibc_eqtl_analysis/data_prep/phenotype/phenotype_tensorqtl_ready.bed.gz"
+bed_file = ""
 male_ids_file = "male_samples.txt"
 female_ids_file ="female_samples.txt"
 
