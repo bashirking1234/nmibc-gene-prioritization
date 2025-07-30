@@ -15,9 +15,9 @@ It performs the following steps:
 
 def main():
     # File paths
-    covariates_path = "data_prep/covariates/covariates_4PCAs.txt"
-    keep_samples_path = "data_prep/covariates/samples_to_keep.txt" # Optional change to None if not needed
-    output_path = "data_prep/covariates/covariates_tensorqtl_ready2.txt"
+    covariates_path = ""
+    keep_samples_path = "t" # Optional change to None if not needed
+    output_path = ""
 
     print("Step 1: Loading covariates file")
     cov = pd.read_csv(covariates_path, sep="\t", index_col=0, decimal=",")
