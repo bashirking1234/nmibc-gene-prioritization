@@ -43,7 +43,7 @@ A Nextflow-driven workflow for integrating eQTL-lookup, colocalization, and Tran
 ## Features
 
 * **GWAS filtering** by p-value (customizable threshold)
-* **eQTL lookup**: harmonization and matching between GWAS and eQTL variants
+* **eQTL lookup**: harmonization and matching between GWAS and eQTL signals
 * **COLOC analysis** for colocalization of GWAS and eQTL signals
 * **FUSION TWAS** for transcriptome-wide association study
 * **Gene prioritization** by integrating results and ranking them across methods
