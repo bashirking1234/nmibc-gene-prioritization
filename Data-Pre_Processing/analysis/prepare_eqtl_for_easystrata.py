@@ -34,11 +34,11 @@ import os
 
 # === Config ===
 regions = ['par', 'nonpar']
-base_path = "/home/hbashir1/nmibc_eqtl_analysis/analysis/output_dir/"
+base_path = ""
 input_suffix = ".cis_qtl_pairs.chrX.parquet"
-output_dir = "/home/hbashir1/nmibc_eqtl_analysis/analysis/easystrata_input/"
-script_dir = "/home/hbashir1/nmibc_eqtl_analysis/analysis/easystrata_scripts/"
-slurm_dir = "/home/hbashir1/nmibc_eqtl_analysis/analysis/easystrata_jobs/"
+output_dir = ""
+script_dir = ""
+slurm_dir = ""
 
 # make directories if needed
 os.makedirs(output_dir, exist_ok=True)
@@ -78,7 +78,7 @@ for region in regions:
 
     easy_df.to_csv(easy_input_path, sep=' ', index=False)
 
-    print(f"✅ EasyStrata input written: {easy_input_path}")
+    print(f"EasyStrata input written: {easy_input_path}")
 
     # === EasyStrata script genereren
     easy_script_content = f"""
@@ -112,7 +112,7 @@ STOP EASYSTRATA
     easy_script_path = os.path.join(script_dir, f"run_chrX_{region}_eQTL_easystrata.txt")
     with open(easy_script_path, "w") as f:
         f.write(easy_script_content.strip())
-    print(f"✅ EasyStrata script written: {easy_script_path}")
+    print(f"EasyStrata script written: {easy_script_path}")
 
     # === generate SLURM-script
     slurm_script = f"""#!/bin/bash
@@ -131,4 +131,4 @@ EasyStrata {easy_script_path}
     slurm_path = os.path.join(slurm_dir, f"run_chrX_{region}_easystrata.sh")
     with open(slurm_path, "w") as f:
         f.write(slurm_script.strip())
-    print(f"✅ SLURM script written: {slurm_path}\n")
+    print(f"SLURM script written: {slurm_path}\n")
