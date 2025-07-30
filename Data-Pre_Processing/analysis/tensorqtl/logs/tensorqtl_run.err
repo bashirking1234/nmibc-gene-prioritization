@@ -1,8 +1,0 @@
-/home/hbashir1/miniconda3/lib/python3.12/site-packages/tensorqtl/core.py:409: DtypeWarning: Columns (0) have mixed types. Specify dtype option on import or set low_memory=False.
-  phenotype_df = pd.read_csv(phenotype_bed, sep='\t', index_col=3, dtype={'#chr':str, '#Chr':str})
-/gpfs/home2/hbashir1/nmibc_eqtl_analysis/analysis/tensorqtl/tensorqtl_script.py:55: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  phenotype_pos_df['chr'] = phenotype_pos_df['chr'].apply(lambda x: f"chr{x}" if not str(x).startswith("chr") else x)
