@@ -51,6 +51,11 @@
 # ------------------------------
 # Robust FUSION TWAS Script on hg38 (full 18‐column output)
 # ------------------------------
+#!/usr/bin/env Rscript
+
+# ------------------------------
+# Robust FUSION TWAS Script on hg38 (with logging of skipped genes)
+# ------------------------------
 .libPaths("/gpfs/home2/hbashir1/Rlibs")
 suppressMessages({
   library(plink2R)
@@ -64,8 +69,7 @@ opt_list <- list(
   make_option("--weights_dir", type="character", help="Directory for weight files"),
   make_option("--ref_ld_chr",  type="character", help="PLINK LD reference prefix [required]"),
   make_option("--chr",         type="character", help="Chromosome to analyze [required]"),
-  make_option("--out",         type="character", help="Output file [required]"),
-  make_option("--hsq_p",       type="double",    default=0.01, help="Min hsq p-value")
+  make_option("--out",         type="character", help="Output file [required]")
 )
 opt <- parse_args(OptionParser(option_list=opt_list))
 
@@ -106,7 +110,7 @@ ld_mat <- as.matrix(ld$bed)
 wgtlist <- read.table(opt$weights, header=TRUE, stringsAsFactors=FALSE)
 wgtlist <- subset(wgtlist, CHR==opt$chr)
 
-# Prepare output with 18 columns
+# Prepare output with full 18 columns
 out <- data.frame(
   FILE         = wgtlist$WGT,
   ID           = wgtlist$ID,
@@ -129,139 +133,111 @@ out <- data.frame(
   stringsAsFactors=FALSE
 )
 
-# 4) PER‐GENE LOOP
+# Prepare skip log
+skip_log <- data.frame(ID=character(), Reason=character(), stringsAsFactors=FALSE)
+
+# PER-GENE LOOP
 for(i in seq_len(nrow(wgtlist))) {
-  gid   <- wgtlist$ID[i]
+  gid <- wgtlist$ID[i]
   wfile <- file.path(opt$weights_dir, wgtlist$WGT[i])
-  if (!file.exists(wfile)) next
+  if (!file.exists(wfile)) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="Missing weight file")); next
+  }
 
-  env <- new.env()
-  load(wfile, envir=env)
-  if (!"snps" %in% ls(env)) next
-  snps <- env$snps
-  # use hg38 id
-  snps$id <- snps$id_hg38
+  env <- new.env(); load(wfile, envir=env)
+  if (!"snps" %in% ls(env)) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="No SNPs in weight file")); next
+  }
+  snps <- env$snps; snps$id <- snps$id_hg38
+  w_locus <- snps$id; wmat <- env$wgt.matrix; cvp <- env$cv.performance
 
-  w_locus <- snps$id
-  wmat    <- env$wgt.matrix
-  cvp     <- env$cv.performance
+  P0 <- max(1, wgtlist$P0[i] - 500000)
+  P1 <- wgtlist$P1[i] + 500000
+  sel <- which(ld$bim$pos >= P0 & ld$bim$pos <= P1)
+  if (length(sel)==0) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="No SNPs in LD window")); next
+  }
+  bim_sub <- ld$bim[sel,]; bed_sub <- ld_mat[,sel,drop=FALSE]
 
-  # dynamic window ±500kb around gene bounds
-  orig_P0 <- wgtlist$P0[i]
-  orig_P1 <- wgtlist$P1[i]
-  P0 <- max(1, orig_P0 - 500000)
-  P1 <- orig_P1 + 500000
-
-  # subset LD panel
-  sel   <- which(ld$bim$pos >= P0 & ld$bim$pos <= P1)
-  if (length(sel)==0) next
-  bim_sub <- ld$bim[sel,]
-  bed_sub <- ld_mat[,sel,drop=FALSE]
-
-  # use full GWAS (sumstat)
   sumstat_sub <- sumstat
-
-  # match weights → LD by chr:pos
   w_coord <- sub("(:[^:]+){2}$","", w_locus)
   ld_coord <- paste0(bim_sub$chr, ":", bim_sub$pos)
   m_pos <- match(w_coord, ld_coord)
-  n_pos <- sum(!is.na(m_pos))
-  if (n_pos < 1) {
+  if (sum(!is.na(m_pos)) < 1) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="No LD-GWAS overlap"))
     out[i, "NSNP"] <- 0
     next
   }
   valid <- which(!is.na(m_pos))
-  w2    <- wmat[valid,,drop=FALSE]
-  curb  <- bim_sub[m_pos[valid],]
-  geno2 <- bed_sub[,m_pos[valid],drop=FALSE]
+  w2 <- wmat[valid,,drop=FALSE]; curb <- bim_sub[m_pos[valid],]; geno2 <- bed_sub[,m_pos[valid],drop=FALSE]
   w_coord <- ld_coord[m_pos[valid]]
 
-  # match LD → GWAS by chr:pos
   g_coord <- sub("(:[^:]+){2}$","", sumstat_sub$locus)
-  m2      <- match(w_coord, g_coord)
+  m2 <- match(w_coord, g_coord)
   if (sum(!is.na(m2)) < 1) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="No GWAS SNPs matched"))
     out[i, "NSNP"] <- length(valid)
     next
   }
-  z_all  <- sumstat_sub$Z[m2]
-  a1_all <- sumstat_sub$A1[m2]
-  a2_all <- sumstat_sub$A2[m2]
-  ref_all <- curb$ref
-  alt_all <- curb$alt
-
-  # allele‐QC
-  qc   <- allele.qc(a1_all,a2_all,ref_all,alt_all)
+  z_all <- sumstat_sub$Z[m2]; a1_all <- sumstat_sub$A1[m2]; a2_all <- sumstat_sub$A2[m2]
+  ref_all <- curb$ref; alt_all <- curb$alt
+  qc <- allele.qc(a1_all,a2_all,ref_all,alt_all)
   flip <- qc$flip; flip[is.na(flip)] <- FALSE
   keep <- qc$keep; keep[is.na(keep)] <- FALSE
-
-  z_all[flip]  <- -z_all[flip]
-  a1_all[flip] <- ref_all[flip]
-  a2_all[flip] <- alt_all[flip]
-
-  w2    <- w2[keep,,drop=FALSE]
-  geno2 <- geno2[,keep,drop=FALSE]
-  z_all <- z_all[keep]
-
+  z_all[flip] <- -z_all[flip]; a1_all[flip] <- ref_all[flip]; a2_all[flip] <- alt_all[flip]
+  w2 <- w2[keep,,drop=FALSE]; geno2 <- geno2[,keep,drop=FALSE]; z_all <- z_all[keep]
   if (length(z_all) < 1) {
+    skip_log <- rbind(skip_log, data.frame(ID=gid, Reason="No SNPs after allele QC"))
     out[i, "NSNP"] <- sum(keep)
     next
   }
 
-  # TWAS stat
   geno2_s <- scale(geno2)
-  LDmat   <- crossprod(geno2_s) / (nrow(geno2_s)-1)
+  LDmat <- crossprod(geno2_s) / (nrow(geno2_s)-1)
+  pidx <- grep("pval",rownames(cvp)); if (!length(pidx)) pidx <- grep("^p",rownames(cvp))
+  best <- which.min(apply(cvp[pidx,,drop=FALSE],2,min,na.rm=TRUE))
+  wv <- w2[,best]; denom <- sqrt(as.numeric(t(wv)%*%LDmat%*%wv))
+  tZ <- as.numeric((wv %*% z_all)/denom); tP <- 2*pnorm(-abs(tZ))
 
-  # choose best model
-  fm <- if ("force_model" %in% names(opt)) opt$force_model else NA_character_
-  if (!is.character(fm) || length(fm)==0 || is.na(fm) || fm=="") {
-    pidx <- grep("pval",rownames(cvp)); if (!length(pidx)) pidx <- grep("^p",rownames(cvp))
-    best <- which.min( apply(cvp[pidx,,drop=FALSE],2,min,na.rm=TRUE) )
-  } else {
-    best <- which(colnames(w2)==fm)
-  }
+  hsq <- env$hsq[1]
+  loci_win <- sumstat_sub$locus[m2]
+  best_g_idx <- which.max(abs(z_all)); best_gwas_id <- loci_win[best_g_idx]; best_gwas_z <- z_all[best_g_idx]
+  top1_w <- w2[,"top1"]; eqtl_idx <- which.max(abs(top1_w)); eqtl_id <- w_coord[eqtl_idx]
+  eqtl_r2 <- cvp["rsq","top1"]; eqtl_z <- top1_w[eqtl_idx]; eqtl_gwas_z <- z_all[eqtl_idx]
+  model <- colnames(w2)[best]; model_cv_r2 <- cvp["rsq", best]; model_cv_pv <- cvp["pval",best]
 
-  wv    <- w2[,best]
-  denom <- sqrt(as.numeric(t(wv)%*%LDmat%*%wv))
-  tZ    <- as.numeric((wv %*% z_all)/denom)
-  tP    <- 2*pnorm(-abs(tZ))
-
-  # heritability
-  model_hsq    <- env$hsq[1]
-  model_hsq_pv <- env$hsq.pv
-  hsq <- if (!is.na(model_hsq_pv) && model_hsq_pv <= opt$hsq_p) model_hsq else NA_real_
-
-  # best GWAS SNP
-  loci_win     <- sumstat_sub$locus[m2]
-  best_g_idx   <- which.max(abs(z_all))
-  best_gwas_id <- loci_win[best_g_idx]
-  best_gwas_z  <- z_all[best_g_idx]
-
-  # top1 eQTL
-  top1_w      <- w2[,"top1"]
-  eqtl_idx    <- which.max(abs(top1_w))
-  eqtl_id     <- w_coord[eqtl_idx]
-  eqtl_r2     <- cvp["rsq","top1"]
-  eqtl_z      <- top1_w[eqtl_idx]
-  eqtl_gwas_z <- z_all[eqtl_idx]
-
-  # model CV stats
-  model       <- colnames(w2)[best]
-  model_cv_r2 <- cvp["rsq", best]
-  model_cv_pv <- cvp["pval",best]
-
-  # fill output
   out[i,] <- list(
-    wgtlist$WGT[i], wgtlist$ID[i], wgtlist$CHR[i],
-    wgtlist$P0[i], wgtlist$P1[i],
-    hsq,
-    best_gwas_id, best_gwas_z,
-    eqtl_id, eqtl_r2, eqtl_z, eqtl_gwas_z,
-    nrow(LDmat),
-    model, model_cv_r2, model_cv_pv,
-    tZ, tP
+    wgtlist$WGT[i], wgtlist$ID[i], wgtlist$CHR[i], wgtlist$P0[i], wgtlist$P1[i],
+    hsq, best_gwas_id, best_gwas_z, eqtl_id, eqtl_r2, eqtl_z, eqtl_gwas_z,
+    nrow(LDmat), model, model_cv_r2, model_cv_pv, tZ, tP
   )
 }
 
-# WRITE RESULTS
-write.table(out, opt$out, sep="\t", quote=FALSE, row.names=FALSE)
-# End of script
+# Bonferroni correction and output
+
+# Get tested genes
+tested <- !is.na(out$TWAS.P)
+N_eff <- sum(tested)
+Pcrit <- 0.05 / N_eff
+significant <- subset(out, tested & TWAS.P < Pcrit)
+
+# Save significant results
+sign_file <- sub("\\.txt$", ".significant.txt", opt$out)
+write.table(significant, sign_file, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Save all tested results only
+tested_file <- opt$out
+write.table(out[tested,], tested_file, sep="\t", quote=FALSE, row.names=FALSE)
+
+# Save skip log
+skip_file <- sub("\\.txt$", ".skipped_genes.tsv", opt$out)
+write.table(skip_log, skip_file, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Print summary
+cat("\nNumber of genes attempted:", nrow(wgtlist), "\n")
+cat("Number of genes tested:", N_eff, "\n")
+cat("Bonferroni threshold:", format(Pcrit, scientific=TRUE), "\n")
+cat("Number of significant genes:", nrow(significant), "\n")
+
+cat("\n--- Gene Skipping Summary ---\n")
+print(as.data.frame(table(skip_log$Reason)))
