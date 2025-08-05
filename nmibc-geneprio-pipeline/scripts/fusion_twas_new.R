@@ -56,7 +56,6 @@
 # ------------------------------
 # Robust FUSION TWAS Script on hg38 (with logging of skipped genes)
 # ------------------------------
-.libPaths("/gpfs/home2/hbashir1/Rlibs")
 suppressMessages({
   library(plink2R)
   library(optparse)
